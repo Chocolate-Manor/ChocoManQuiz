@@ -2,15 +2,20 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Counter from './lib/Counter.svelte'
+  import Button from './lib/Button.svelte';
+    import QuizCard from './lib/QuizCard.svelte';
+
+  let quizzes: {_id: string, name: string}[] = [];
 
   async function getQuizzes(){
-    let response = fetch("http://localhost:3000/api/quizzes");
-    if(!(await response).ok){
+    let response = await fetch("http://localhost:3000/api/quizzes");
+    if(!await response.ok){
       alert("Failed!");
       return;
     }
 
-    let json = (await response).json();
+    let json = await response.json();
+    quizzes = json;
     console.log(json);
   }
   
@@ -27,8 +32,13 @@
   }
 </script>
 
-<button on:click={getQuizzes}>getQuizzes</button>
-<button on:click={webcocket_connect}>Websocket Connect</button>
+<Button onClick={getQuizzes}>getQuizzes</Button>
+<Button onClick={webcocket_connect}>Websocket Connect</Button>
+
+{#each quizzes as quiz}
+  <QuizCard {quiz}/>
+{/each}
+
 
 <main>
   <div>
