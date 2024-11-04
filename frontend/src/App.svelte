@@ -2,7 +2,33 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Counter from './lib/Counter.svelte'
+
+  async function getQuizzes(){
+    let response = fetch("http://localhost:3000/api/quizzes");
+    if(!(await response).ok){
+      alert("Failed!");
+      return;
+    }
+
+    let json = (await response).json();
+    console.log(json);
+  }
+  
+  function webcocket_connect(){
+    let websocket = new WebSocket("ws://localhost:3000/ws");
+    websocket.onopen = () => {
+      console.log("opened websocket connection");
+      websocket.send("echo!");
+    };
+
+    websocket.onmessage = (event) => {
+      console.log(event.data);
+    }
+  }
 </script>
+
+<button on:click={getQuizzes}>getQuizzes</button>
+<button on:click={webcocket_connect}>Websocket Connect</button>
 
 <main>
   <div>
