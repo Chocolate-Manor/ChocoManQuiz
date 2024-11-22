@@ -32,11 +32,11 @@
   }
 </script>
 
-<Button on:click={getQuizzes}>getQuizzes</Button>
-<Button on:click={webcocket_connect}>Websocket Connect</Button>
+<Button onclick={getQuizzes}>getQuizzes</Button>
+<Button onclick={webcocket_connect}>Websocket Connect</Button>
 
 {#each quizzes as quiz}
-  <QuizCard on:click={webcocket_connect} {quiz}/>
+  <QuizCard onhost={webcocket_connect} {quiz}/>
 {/each}
 
 
