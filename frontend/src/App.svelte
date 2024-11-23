@@ -7,6 +7,7 @@
   import Join from './lib/Join.svelte';
 
   let pin = $state("");
+  let msg = $state("");
   let quizzes: {_id: string, name: string}[] = $state([]);
 
   async function getQuizzes(){
@@ -24,29 +25,25 @@
   function join(){
     let websocket = new WebSocket("ws://localhost:3000/ws");
     websocket.onopen = () => {
-      console.log("joined!");
       websocket.send(`join:${pin}`);
     };
-
-    websocket.onmessage = (event) => {
-      console.log(event.data);
-    }
   }
 
   function host(quiz){
     let websocket = new WebSocket("ws://localhost:3000/ws");
     websocket.onopen = () => {
-      console.log("hosting!");
       websocket.send(`host:${quiz.id}`);
     };
 
     websocket.onmessage = (event) => {
-      console.log(event.data);
+      msg = event.data;
     }
   }
 </script>
 
 <Button onclick={getQuizzes}>getQuizzes</Button>
+Message: {msg}
+
 <Join bind:joinPin={pin} handleJoin={join}></Join>
 
 {#each quizzes as quiz}
