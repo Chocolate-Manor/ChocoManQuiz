@@ -3,14 +3,18 @@ package controller
 import (
 	"log"
 
+	"chocomanquiz.com/quiz/internal/service"
 	"github.com/gofiber/contrib/websocket"
 )
 
 type WebsocketController struct {
+	netService *service.NetService
 }
 
-func Ws() WebsocketController {
-	return WebsocketController{}
+func Ws(netService *service.NetService) WebsocketController {
+	return WebsocketController{
+		netService: netService,
+	}
 }
 
 func (c WebsocketController) Ws(con *websocket.Conn) {
@@ -23,6 +27,8 @@ func (c WebsocketController) Ws(con *websocket.Conn) {
 			break
 		}
 		log.Printf("recv: %s", msg)
+
+		c.netService.OnIncomingMessage(con, mt, msg)
 
 		if err = con.WriteMessage(mt, msg); err != nil {
 			log.Println("write:", err)

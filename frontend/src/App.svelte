@@ -37,7 +37,7 @@
     let websocket = new WebSocket("ws://localhost:3000/ws");
     websocket.onopen = () => {
       console.log("hosting!");
-      websocket.send(`host:${quiz.name}`);
+      websocket.send(`host:${quiz.id}`);
     };
 
     websocket.onmessage = (event) => {

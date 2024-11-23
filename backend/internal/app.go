@@ -24,18 +24,18 @@ type App struct {
 	database   *mongo.Database
 
 	quizService *service.QuizService
+	netService  *service.NetService
 }
 
 func (a *App) Init() {
 	a.setupDb()
 	a.setupServices()
-	a.setupHttp()
-	a.setupWebsockets()
+	a.setupHttpAndWs()
 
 	log.Fatal(a.httpServer.Listen(":3000"))
 }
 
-func (a *App) setupHttp() {
+func (a *App) setupHttpAndWs() {
 	hs := fiber.New()
 	hs.Use(cors.New())
 
@@ -44,41 +44,16 @@ func (a *App) setupHttp() {
 	hs.Get("/api/quizzes/:quizId", quizController.GetQuizById)
 	//hs.Put("/api/quizzes/:quizId", quizController.UpdateQuizById)
 
-	wsController := controller.Ws()
+	// websocket set up
+	wsController := controller.Ws(a.netService)
 	hs.Get("/ws", websocket.New(wsController.Ws))
 
 	a.httpServer = hs
 }
 
-func (a *App) setupWebsockets() {
-
-	a.httpServer.Get("/ws", websocket.New(func(c *websocket.Conn) {
-		var (
-			mt  int
-			msg []byte
-			err error
-		)
-		// syntax for infinite for loop
-		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
-				log.Println("read:", err)
-				break
-			}
-			log.Printf("recv: %s", msg)
-
-			if err = c.WriteMessage(mt, msg); err != nil {
-				log.Println("write:", err)
-				break
-			}
-		}
-
-	}))
-	// Access the websocket server: ws://localhost:3000/ws/123?v=1.0
-	// https://www.websocket.org/echo.html
-}
-
 func (a *App) setupServices() {
 	a.quizService = service.Quiz(collection.Quiz(a.database.Collection("quizzes")))
+	a.netService = service.Net(a.quizService)
 }
 
 func (a *App) setupDb() {
